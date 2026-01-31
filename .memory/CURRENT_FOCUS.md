@@ -1,16 +1,18 @@
 # CURRENT_FOCUS
 
 ## One-liner
-- MVP idle clicker RPG with hybrid combat loop and equipment system is now playable.
+- MVP idle clicker RPG with rarity-based item combining system is playable.
 
 ## Active Objectives (max 3)
-1. Test and verify the inventory/equipment system works correctly
+1. Test and verify the rarity & combining system works correctly
 2. Consider next post-MVP features (shop, boss monsters, save/load)
 
 ## Next Actions
-- [ ] Test game in browser - verify item drops, inventory UI, equipping items
+- [ ] Test game in browser - verify item drops, stacking, merging, and upgrades
+- [ ] Verify drag-and-drop merging works correctly
+- [ ] Verify 10 common items upgrade to 1 uncommon
+- [ ] Test equipping from stacks (click takes 1, leaves rest)
 - [ ] Add shop functionality
-- [ ] Add boss monsters
 - [ ] Add save/load system
 
 ## Open Loops / Blockers
@@ -18,7 +20,7 @@
 
 ## How to Resume in 30 Seconds
 - **Open:** `index.html` in browser to test game
-- **Next:** Verify inventory system, then pick next post-MVP feature
+- **Next:** Verify rarity system, then pick next post-MVP feature
 - **If unclear:** Check plan for post-MVP features list
 
 ## Key Context
@@ -27,21 +29,21 @@
 - Player entity: `src/entities/Player.js`
 - Monster entity: `src/entities/Monster.js`
 - Monster data: `src/data/monsters.js`
-- Item data: `src/data/items.js`
-- Inventory system: `src/systems/Inventory.js`
-- UI: `src/ui/GameUI.js`, `src/ui/InventoryUI.js`
+- Item data: `src/data/items.js` (now with rarity system)
+- Inventory system: `src/systems/Inventory.js` (now with stacking/merging)
+- UI: `src/ui/GameUI.js`, `src/ui/InventoryUI.js` (now with drag-and-drop)
 
 ---
 
 ## Last Session Summary (max ~8 bullets)
-- Created item definitions with 9 items (3 weapons, 3 armor, 3 accessories)
-- Implemented Inventory system with 20 slots and 3 equipment slots
-- Added drop tables to all 4 monster types (5-10% drop chances)
-- Updated Player class with base stats and equipment bonuses
-- Created InventoryUI overlay with equipment slots and 5x4 inventory grid
-- Added 'I' key and button to toggle inventory UI
-- Integrated drop rolling on monster death with floating "+Item Name" text
-- Added "Inventory Full!" warning message
+- Replaced tiered items with rarity variants (Common/Uncommon/Rare)
+- Added COMBINE_COST=10, getUpgradeTarget(), getItemColor(), getRarityName() helpers
+- Updated monster drop tables to only drop common variants
+- Changed inventory to store {id, quantity} objects for stacking
+- Added mergeItems() method and auto-upgrade on reaching 10
+- Implemented drag-and-drop in InventoryUI for combining items
+- Added rarity border colors (brown/green/blue) to inventory slots
+- Added floating upgrade notification text
 
 ## Pinned References
 - Governance rules: `CLAUDE.md`

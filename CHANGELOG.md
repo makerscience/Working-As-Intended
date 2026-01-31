@@ -1,7 +1,15 @@
 # CHANGELOG
 
 ## Unreleased
-- (most recent significant changes go here)
+- Added rarity & item combining system
+  - Items now have rarity tiers: Common (brown), Uncommon (green), Rare (blue)
+  - Drag-and-drop to manually merge same items; 10 items auto-upgrade to next rarity
+  - Items don't auto-stack - each drop goes to its own slot until manually combined
+  - Removed tiered items (Iron Sword, Steel Blade, Chainmail, Plate Armor)
+  - Kept Wooden Sword and Leather Vest with 3 rarity variants each
+  - Stats scale with rarity: Common→Uncommon→Rare matches old tier progression
+  - Click on stacked items equips 1 and leaves the rest
+  - Floating text notification on upgrade ("+Uncommon Wooden Sword!")
 
 ---
 

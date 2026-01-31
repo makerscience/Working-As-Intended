@@ -8,8 +8,8 @@ export const MONSTERS = [
         goldReward: 5,
         color: 0x44aa44,  // green
         drops: [
-            { itemId: 'wooden_sword', chance: 0.10 },
-            { itemId: 'leather_vest', chance: 0.10 }
+            { itemId: 'wooden_sword_common', chance: 0.10 },
+            { itemId: 'leather_vest_common', chance: 0.10 }
         ]
     },
     {
@@ -21,8 +21,8 @@ export const MONSTERS = [
         goldReward: 10,
         color: 0x88aa44,  // yellow-green
         drops: [
-            { itemId: 'wooden_sword', chance: 0.08 },
-            { itemId: 'iron_sword', chance: 0.05 },
+            { itemId: 'wooden_sword_common', chance: 0.10 },
+            { itemId: 'leather_vest_common', chance: 0.10 },
             { itemId: 'health_ring', chance: 0.08 }
         ]
     },
@@ -35,8 +35,8 @@ export const MONSTERS = [
         goldReward: 20,
         color: 0xaa6644,  // brown
         drops: [
-            { itemId: 'iron_sword', chance: 0.10 },
-            { itemId: 'chainmail', chance: 0.08 },
+            { itemId: 'wooden_sword_common', chance: 0.12 },
+            { itemId: 'leather_vest_common', chance: 0.12 },
             { itemId: 'power_amulet', chance: 0.06 }
         ]
     },
@@ -49,8 +49,8 @@ export const MONSTERS = [
         goldReward: 50,
         color: 0x666688,  // gray-blue
         drops: [
-            { itemId: 'steel_blade', chance: 0.10 },
-            { itemId: 'plate_armor', chance: 0.08 },
+            { itemId: 'wooden_sword_common', chance: 0.15 },
+            { itemId: 'leather_vest_common', chance: 0.15 },
             { itemId: 'regen_charm', chance: 0.10 }
         ]
     }

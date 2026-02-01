@@ -271,6 +271,7 @@ export class Game extends Phaser.Scene {
         // Create boss data with multiplied stats
         const bossData = {
             name: area.miniBoss.name,
+            baseMonster: area.miniBoss.baseMonster,
             hp: Math.floor(baseMonster.hp * area.miniBoss.hpMultiplier),
             atk: Math.floor(baseMonster.atk * area.miniBoss.atkMultiplier),
             hpRegen: baseMonster.hpRegen,

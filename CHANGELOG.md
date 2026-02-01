@@ -1,6 +1,12 @@
 # CHANGELOG
 
 ## Unreleased
+- Replaced placeholder art with custom character graphics
+  - Player is now a little dude with hair, face, shirt, pants, and shoes
+  - Slime: blobby shape with big eyes and cute smile
+  - Goblin: small creature with pointy ears, angry eyes, and fangs
+  - Orc: bulky brute with tusks, red eyes, and big fists
+  - Troll: large hunched beast with messy hair and long arms
 - Fixed duplicate monster spawn when changing areas
 - Added area progression system with mini-bosses
   - 3 areas: Forest (Slimes, Goblins), Dark Caves (+Orcs), Troll Mountains (+Trolls)

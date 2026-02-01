@@ -40,8 +40,8 @@ export class Player {
         this.regenInterval = 1000; // ms
         this.lastRegenTime = 0;
 
-        // Visual - blue rectangle 80x100
-        this.sprite = scene.add.rectangle(x, y, 80, 100, 0x4444aa);
+        // Visual - little character made of shapes
+        this.createCharacterSprite(scene, x, y);
 
         // Health bar background
         this.healthBarBg = scene.add.rectangle(x, y - 70, 80, 10, 0x333333);
@@ -50,6 +50,71 @@ export class Player {
         this.healthBar = scene.add.rectangle(x, y - 70, 80, 10, 0x44aa44);
 
         this.updateHealthBar();
+    }
+
+    createCharacterSprite(scene, x, y) {
+        // Create a graphics object for the character
+        const g = scene.add.graphics();
+
+        // Colors
+        const skinColor = 0xffcc99;
+        const hairColor = 0x553311;
+        const shirtColor = 0x4466aa;
+        const pantsColor = 0x445566;
+        const shoeColor = 0x332222;
+
+        // Draw relative to center point
+        // Head (circle)
+        g.fillStyle(skinColor);
+        g.fillCircle(0, -35, 18);
+
+        // Hair (arc on top of head)
+        g.fillStyle(hairColor);
+        g.fillRect(-14, -52, 28, 10);
+        g.fillCircle(-10, -45, 6);
+        g.fillCircle(10, -45, 6);
+
+        // Eyes
+        g.fillStyle(0x333333);
+        g.fillCircle(-6, -38, 3);
+        g.fillCircle(6, -38, 3);
+
+        // Smile
+        g.lineStyle(2, 0x333333);
+        g.beginPath();
+        g.arc(0, -32, 6, 0.2, Math.PI - 0.2);
+        g.strokePath();
+
+        // Body (torso)
+        g.fillStyle(shirtColor);
+        g.fillRoundedRect(-18, -15, 36, 40, 4);
+
+        // Arms
+        g.fillStyle(skinColor);
+        g.fillRoundedRect(-28, -12, 12, 30, 4);  // Left arm
+        g.fillRoundedRect(16, -12, 12, 30, 4);   // Right arm
+
+        // Hands
+        g.fillCircle(-22, 20, 6);  // Left hand
+        g.fillCircle(22, 20, 6);   // Right hand
+
+        // Legs
+        g.fillStyle(pantsColor);
+        g.fillRoundedRect(-15, 25, 13, 35, 3);  // Left leg
+        g.fillRoundedRect(2, 25, 13, 35, 3);    // Right leg
+
+        // Shoes
+        g.fillStyle(shoeColor);
+        g.fillRoundedRect(-17, 55, 15, 8, 2);   // Left shoe
+        g.fillRoundedRect(2, 55, 15, 8, 2);     // Right shoe
+
+        // Position the graphics
+        g.setPosition(x, y);
+
+        // Store reference (we use a fake sprite object with x, y for compatibility)
+        this.sprite = g;
+        this.sprite.x = x;
+        this.sprite.y = y;
     }
 
     recalculateStats() {

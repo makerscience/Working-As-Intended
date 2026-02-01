@@ -11,6 +11,30 @@ import { getItemById } from '../data/items.js';
 export class Game extends Phaser.Scene {
     constructor() {
         super('Game');
+        this.loadedAssets = new Set();
+    }
+
+    preload() {
+        // Attempt to load custom assets - failures are handled gracefully
+        this.loadAsset('player', 'assets/player/player.png');
+        this.loadAsset('slime', 'assets/monsters/slime.png');
+        this.loadAsset('goblin', 'assets/monsters/goblin.png');
+        this.loadAsset('orc', 'assets/monsters/orc.png');
+        this.loadAsset('troll', 'assets/monsters/troll.png');
+        this.loadAsset('giant_slime', 'assets/monsters/giant_slime.png');
+        this.loadAsset('goblin_chief', 'assets/monsters/goblin_chief.png');
+        this.loadAsset('troll_king', 'assets/monsters/troll_king.png');
+    }
+
+    loadAsset(key, path) {
+        this.load.image(key, path);
+        this.load.on(`filecomplete-image-${key}`, () => {
+            this.loadedAssets.add(key);
+        });
+    }
+
+    hasAsset(key) {
+        return this.loadedAssets.has(key);
     }
 
     create() {

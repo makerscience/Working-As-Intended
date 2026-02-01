@@ -53,7 +53,14 @@ export class Player {
     }
 
     createCharacterSprite(scene, x, y) {
-        // Create a graphics object for the character
+        // Check if custom asset is loaded
+        if (scene.hasAsset && scene.hasAsset('player')) {
+            this.sprite = scene.add.sprite(x, y, 'player');
+            this.sprite.setDisplaySize(80, 130);
+            return;
+        }
+
+        // Fallback: Create a graphics object for the character
         const g = scene.add.graphics();
 
         // Colors
@@ -111,7 +118,7 @@ export class Player {
         // Position the graphics
         g.setPosition(x, y);
 
-        // Store reference (we use a fake sprite object with x, y for compatibility)
+        // Store reference
         this.sprite = g;
         this.sprite.x = x;
         this.sprite.y = y;

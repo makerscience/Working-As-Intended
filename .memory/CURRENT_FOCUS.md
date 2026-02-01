@@ -39,14 +39,13 @@
 ---
 
 ## Last Session Summary (max ~8 bullets)
-- Created `src/data/areas.js` with 3 areas: Forest, Dark Caves, Troll Mountains
-- Each area has monster pool and mini-boss with multiplied stats
-- Added area tracking to Player: currentArea, unlockedAreas, defeatedBosses
-- Updated Monster.js to support boss visuals (larger size, gold name prefix)
-- Created `src/ui/AreaUI.js` with area list, [GO]/[CURRENT]/[LOCKED] states
-- Added [A] Areas button and keyboard shortcut in Game.js
-- Area-filtered monster spawning based on current area
-- Boss death unlocks next area with notification
+- Added custom asset support (ComfyUI/AI-generated images)
+- Created `assets/` folder structure with README for image guidelines
+- Player and monsters now load PNG sprites if available, fallback to graphics
+- Replaced placeholder art with procedural character graphics
+- Player is a little dude; monsters have unique designs (Slime, Goblin, Orc, Troll)
+- Added area progression system with 3 areas and mini-bosses
+- Fixed duplicate monster spawn bug when changing areas
 
 ## Pinned References
 - Governance rules: `CLAUDE.md`

@@ -61,42 +61,64 @@ export class Monster {
     }
 
     createMonsterSprite(scene, x, y) {
-        const g = scene.add.graphics();
         const s = this.sizeMultiplier;
-        const color = this.monsterColor;
-
-        // Determine which monster to draw based on base type
         const monsterType = this.baseMonster || this.name;
 
-        switch (monsterType) {
-            case 'Slime':
-                this.drawSlime(g, s, color);
-                break;
-            case 'Goblin':
-                this.drawGoblin(g, s, color);
-                break;
-            case 'Orc':
-                this.drawOrc(g, s, color);
-                break;
-            case 'Troll':
-                this.drawTroll(g, s, color);
-                break;
-            default:
-                this.drawSlime(g, s, color);
+        // Convert name to asset key (e.g., "Giant Slime" -> "giant_slime")
+        const bossAssetKey = this.name.toLowerCase().replace(/ /g, '_');
+        const baseAssetKey = monsterType.toLowerCase();
+
+        // Check for custom assets: first boss-specific, then base monster
+        const assetKey = (scene.hasAsset && scene.hasAsset(bossAssetKey)) ? bossAssetKey :
+                         (scene.hasAsset && scene.hasAsset(baseAssetKey)) ? baseAssetKey : null;
+
+        if (assetKey) {
+            // Use loaded sprite
+            this.sprite = scene.add.sprite(x, y, assetKey);
+            // Scale based on monster type and boss multiplier
+            const baseSize = { slime: 100, goblin: 120, orc: 140, troll: 160 };
+            const size = (baseSize[baseAssetKey] || 100) * s;
+            this.sprite.setDisplaySize(size, size);
+            this.sprite.setInteractive({ useHandCursor: true });
+            this.sprite.on('pointerdown', () => {
+                scene.onMonsterClicked();
+            });
+            this.hitArea = null; // No separate hit area needed
+        } else {
+            // Fallback: draw with graphics
+            const g = scene.add.graphics();
+            const color = this.monsterColor;
+
+            switch (monsterType) {
+                case 'Slime':
+                    this.drawSlime(g, s, color);
+                    break;
+                case 'Goblin':
+                    this.drawGoblin(g, s, color);
+                    break;
+                case 'Orc':
+                    this.drawOrc(g, s, color);
+                    break;
+                case 'Troll':
+                    this.drawTroll(g, s, color);
+                    break;
+                default:
+                    this.drawSlime(g, s, color);
+            }
+
+            g.setPosition(x, y);
+            this.sprite = g;
+            this.sprite.x = x;
+            this.sprite.y = y;
+
+            // Create invisible hit area for clicking
+            const hitRadius = 50 * s;
+            this.hitArea = scene.add.circle(x, y, hitRadius, 0x000000, 0);
+            this.hitArea.setInteractive({ useHandCursor: true });
+            this.hitArea.on('pointerdown', () => {
+                scene.onMonsterClicked();
+            });
         }
-
-        g.setPosition(x, y);
-        this.sprite = g;
-        this.sprite.x = x;
-        this.sprite.y = y;
-
-        // Create invisible hit area for clicking
-        const hitRadius = 50 * s;
-        this.hitArea = scene.add.circle(x, y, hitRadius, 0x000000, 0);
-        this.hitArea.setInteractive({ useHandCursor: true });
-        this.hitArea.on('pointerdown', () => {
-            scene.onMonsterClicked();
-        });
     }
 
     drawSlime(g, s, color) {
@@ -339,7 +361,9 @@ export class Monster {
 
     destroy() {
         this.sprite.destroy();
-        this.hitArea.destroy();
+        if (this.hitArea) {
+            this.hitArea.destroy();
+        }
         this.healthBar.destroy();
         this.healthBarBg.destroy();
         this.nameText.destroy();

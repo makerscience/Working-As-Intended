@@ -1,6 +1,10 @@
 # CHANGELOG
 
 ## Unreleased
+- Added support for custom image assets (ComfyUI/AI-generated)
+  - Assets folder structure: `assets/player/`, `assets/monsters/`, etc.
+  - Game loads PNGs if present, falls back to procedural graphics
+  - See `assets/README.md` for image guidelines and sizes
 - Replaced placeholder art with custom character graphics
   - Player is now a little dude with hair, face, shirt, pants, and shoes
   - Slime: blobby shape with big eyes and cute smile

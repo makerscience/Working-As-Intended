@@ -27,6 +27,11 @@ export class Player {
         this.inventory = new Inventory(20);
         this.inventory.setOnChange(() => this.onEquipmentChange());
 
+        // Area progression
+        this.currentArea = 'forest';
+        this.unlockedAreas = ['forest'];
+        this.defeatedBosses = [];
+
         // Combat timing
         this.attackSpeed = 1500; // ms
         this.lastAttackTime = 0;
@@ -147,5 +152,34 @@ export class Player {
             this.updateHealthBar();
         }
         this.lastRegenTime = time;
+    }
+
+    // Area progression methods
+    setArea(areaId) {
+        if (this.isAreaUnlocked(areaId)) {
+            this.currentArea = areaId;
+            return true;
+        }
+        return false;
+    }
+
+    unlockArea(areaId) {
+        if (!this.unlockedAreas.includes(areaId)) {
+            this.unlockedAreas.push(areaId);
+        }
+    }
+
+    markBossDefeated(areaId) {
+        if (!this.defeatedBosses.includes(areaId)) {
+            this.defeatedBosses.push(areaId);
+        }
+    }
+
+    isBossDefeated(areaId) {
+        return this.defeatedBosses.includes(areaId);
+    }
+
+    isAreaUnlocked(areaId) {
+        return this.unlockedAreas.includes(areaId);
     }
 }

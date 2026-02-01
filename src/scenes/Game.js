@@ -3,7 +3,9 @@ import { Monster } from '../entities/Monster.js';
 import { GameUI } from '../ui/GameUI.js';
 import { InventoryUI } from '../ui/InventoryUI.js';
 import { ShopUI } from '../ui/ShopUI.js';
+import { AreaUI } from '../ui/AreaUI.js';
 import { MONSTERS } from '../data/monsters.js';
+import { AREAS, getAreaById, getNextArea } from '../data/areas.js';
 import { getItemById } from '../data/items.js';
 
 export class Game extends Phaser.Scene {
@@ -26,6 +28,12 @@ export class Game extends Phaser.Scene {
 
         // Create shop UI (hidden by default)
         this.shopUI = new ShopUI(this, this.player);
+
+        // Create area UI (hidden by default)
+        this.areaUI = new AreaUI(this, this.player);
+
+        // Boss fight state
+        this.fightingBoss = false;
 
         // Inventory button
         this.inventoryBtn = this.add.text(1180, 20, '[I] Inventory', {
@@ -53,11 +61,27 @@ export class Game extends Phaser.Scene {
         this.shopBtn.on('pointerover', () => this.shopBtn.setColor('#ffffff'));
         this.shopBtn.on('pointerout', () => this.shopBtn.setColor('#ffdd88'));
 
+        // Areas button
+        this.areasBtn = this.add.text(1180, 80, '[A] Areas', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#88ddff',
+            backgroundColor: '#335555',
+            padding: { x: 8, y: 4 }
+        }).setInteractive({ useHandCursor: true });
+
+        this.areasBtn.on('pointerdown', () => this.toggleAreas());
+        this.areasBtn.on('pointerover', () => this.areasBtn.setColor('#ffffff'));
+        this.areasBtn.on('pointerout', () => this.areasBtn.setColor('#88ddff'));
+
         // Keyboard listener for 'I' key
         this.input.keyboard.on('keydown-I', () => this.toggleInventory());
 
         // Keyboard listener for 'S' key
         this.input.keyboard.on('keydown-S', () => this.toggleShop());
+
+        // Keyboard listener for 'A' key
+        this.input.keyboard.on('keydown-A', () => this.toggleAreas());
 
         // Game speed control
         this.gameSpeed = 1;
@@ -206,10 +230,70 @@ export class Game extends Phaser.Scene {
         this.shopUI.toggle();
     }
 
+    toggleAreas() {
+        this.areaUI.toggle();
+    }
+
     spawnMonster() {
-        // Pick random monster from array
-        const data = MONSTERS[Math.floor(Math.random() * MONSTERS.length)];
+        // Don't spawn if monster already exists
+        if (this.monster) return;
+        // Don't spawn regular monsters during boss fight
+        if (this.fightingBoss) return;
+
+        // Get current area's monster pool
+        const currentArea = getAreaById(this.player.currentArea);
+        const monsterPool = currentArea ? currentArea.monsterPool : ['Slime', 'Goblin'];
+
+        // Filter monsters to only those in current area
+        const availableMonsters = MONSTERS.filter(m => monsterPool.includes(m.name));
+
+        // Pick random monster from available pool
+        const data = availableMonsters[Math.floor(Math.random() * availableMonsters.length)];
         this.monster = new Monster(this, 900, 400, data);
+    }
+
+    spawnBoss(areaId) {
+        // Destroy current monster if any
+        if (this.monster) {
+            this.monster.destroy();
+            this.monster = null;
+        }
+
+        const area = getAreaById(areaId);
+        if (!area || !area.miniBoss) return;
+
+        // Find base monster stats
+        const baseMonster = MONSTERS.find(m => m.name === area.miniBoss.baseMonster);
+        if (!baseMonster) return;
+
+        this.fightingBoss = true;
+
+        // Create boss data with multiplied stats
+        const bossData = {
+            name: area.miniBoss.name,
+            hp: Math.floor(baseMonster.hp * area.miniBoss.hpMultiplier),
+            atk: Math.floor(baseMonster.atk * area.miniBoss.atkMultiplier),
+            hpRegen: baseMonster.hpRegen,
+            xpReward: Math.floor(baseMonster.xpReward * area.miniBoss.xpMultiplier),
+            goldReward: Math.floor(baseMonster.goldReward * area.miniBoss.goldMultiplier),
+            color: area.miniBoss.color,
+            drops: area.miniBoss.drops,
+            isBoss: true,
+            sizeMultiplier: area.miniBoss.sizeMultiplier,
+            areaId: areaId
+        };
+
+        this.monster = new Monster(this, 900, 400, bossData);
+    }
+
+    onAreaChanged(areaId) {
+        // Destroy current monster and spawn new one for new area
+        if (this.monster) {
+            this.monster.destroy();
+            this.monster = null;
+        }
+        this.fightingBoss = false;
+        this.spawnMonster();
     }
 
     playerAttack() {
@@ -332,15 +416,75 @@ export class Game extends Phaser.Scene {
             this.showInventoryFull();
         }
 
+        // Check if this was a boss kill
+        const wasBoss = this.monster.isBoss;
+        const bossAreaId = this.monster.areaId;
+
         // Destroy monster
         this.monster.destroy();
         this.monster = null;
+
+        // Handle boss defeat
+        if (wasBoss && bossAreaId) {
+            this.fightingBoss = false;
+            this.player.markBossDefeated(bossAreaId);
+
+            // Unlock next area
+            const nextArea = getNextArea(bossAreaId);
+            if (nextArea) {
+                this.player.unlockArea(nextArea.id);
+                this.showAreaUnlocked(nextArea.name);
+            } else {
+                // Final boss defeated
+                this.showNotification('All areas conquered!', '#ffdd44');
+            }
+        }
 
         // Spawn new monster after delay
         this.time.delayedCall(500, () => {
             if (this.inCombat) {
                 this.spawnMonster();
             }
+        });
+    }
+
+    showAreaUnlocked(areaName) {
+        const text = this.add.text(640, 250, `${areaName} Unlocked!`, {
+            fontSize: '36px',
+            fontFamily: 'Arial',
+            color: '#88ddff',
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(50);
+
+        this.tweens.add({
+            targets: text,
+            y: 180,
+            alpha: 0,
+            duration: 2500,
+            ease: 'Power2',
+            onComplete: () => text.destroy()
+        });
+    }
+
+    showNotification(message, color) {
+        const text = this.add.text(640, 250, message, {
+            fontSize: '32px',
+            fontFamily: 'Arial',
+            color: color,
+            fontStyle: 'bold',
+            stroke: '#000000',
+            strokeThickness: 4
+        }).setOrigin(0.5).setDepth(50);
+
+        this.tweens.add({
+            targets: text,
+            y: 180,
+            alpha: 0,
+            duration: 2500,
+            ease: 'Power2',
+            onComplete: () => text.destroy()
         });
     }
 

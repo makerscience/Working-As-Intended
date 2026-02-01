@@ -1,25 +1,26 @@
 # CURRENT_FOCUS
 
 ## One-liner
-- MVP idle clicker RPG with shop and rarity-based item combining system is playable.
+- MVP idle clicker RPG with shop, item combining, and area progression system is playable.
 
 ## Active Objectives (max 3)
-1. Test shop functionality (buy items, gold deduction, inventory full handling)
-2. Consider next post-MVP features (boss monsters, save/load, more items)
+1. Test area progression system in browser
+2. Consider save/load system for next feature
 
 ## Next Actions
-- [ ] Test shop in browser - verify buying items deducts gold
-- [ ] Verify shop buttons gray out when can't afford
-- [ ] Verify "Inventory Full!" appears when inventory is full
-- [ ] Test that shop and inventory can be open independently
-- [ ] Add save/load system
+- [ ] Test Areas panel opens with 'A' key and button
+- [ ] Verify only Slimes and Goblins spawn in Forest
+- [ ] Test Giant Slime boss fight (click [Fight Giant Slime])
+- [ ] Verify Dark Caves unlocks after boss defeat
+- [ ] Test switching areas with [GO] button
+- [ ] Verify boss defeated status persists in UI
 
 ## Open Loops / Blockers
 - None currently
 
 ## How to Resume in 30 Seconds
 - **Open:** `index.html` in browser to test game
-- **Next:** Test shop, then pick next post-MVP feature (save/load recommended)
+- **Next:** Test area progression, then save/load system
 - **If unclear:** Check plan for post-MVP features list
 
 ## Key Context
@@ -28,6 +29,8 @@
 - Player entity: `src/entities/Player.js`
 - Monster entity: `src/entities/Monster.js`
 - Monster data: `src/data/monsters.js`
+- **Area data: `src/data/areas.js`** (new - area definitions with bosses)
+- **Area UI: `src/ui/AreaUI.js`** (new - area selection panel)
 - Item data: `src/data/items.js` (rarity system)
 - Shop data: `src/data/shop.js` (shop inventory & prices)
 - Inventory system: `src/systems/Inventory.js` (stacking/merging)
@@ -36,13 +39,14 @@
 ---
 
 ## Last Session Summary (max ~8 bullets)
-- Created `src/data/shop.js` with SHOP_ITEMS array (5 common items with prices)
-- Created `src/ui/ShopUI.js` following InventoryUI pattern
-- Added shop button [S] Shop at (1180, 50) in Game.js
-- Added keyboard listener for 'S' key to toggle shop
-- Shop shows item name, stats, price, and Buy button for each item
-- Buy buttons disable (gray) when player can't afford item
-- Floating text shows purchase confirmation or "Inventory Full!" warning
+- Created `src/data/areas.js` with 3 areas: Forest, Dark Caves, Troll Mountains
+- Each area has monster pool and mini-boss with multiplied stats
+- Added area tracking to Player: currentArea, unlockedAreas, defeatedBosses
+- Updated Monster.js to support boss visuals (larger size, gold name prefix)
+- Created `src/ui/AreaUI.js` with area list, [GO]/[CURRENT]/[LOCKED] states
+- Added [A] Areas button and keyboard shortcut in Game.js
+- Area-filtered monster spawning based on current area
+- Boss death unlocks next area with notification
 
 ## Pinned References
 - Governance rules: `CLAUDE.md`

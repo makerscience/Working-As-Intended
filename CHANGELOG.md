@@ -1,6 +1,13 @@
 # CHANGELOG
 
 ## Unreleased
+- Fixed duplicate monster spawn when changing areas
+- Added area progression system with mini-bosses
+  - 3 areas: Forest (Slimes, Goblins), Dark Caves (+Orcs), Troll Mountains (+Trolls)
+  - Toggle Areas panel with 'A' key or [A] Areas button
+  - Each area has a mini-boss (Giant Slime, Goblin Chief, Troll King)
+  - Defeating boss unlocks next area; can return to previous areas to farm
+  - Bosses have larger sprites, gold "BOSS:" prefix, and enhanced stats/rewards
 - Added shop system
   - Toggle with 'S' key or [S] Shop button
   - Sells 5 common items: Wooden Sword (25g), Leather Vest (25g), Health Ring (50g), Power Amulet (50g), Regen Charm (50g)

@@ -1,6 +1,11 @@
 # CHANGELOG
 
 ## Unreleased
+- Added shop system
+  - Toggle with 'S' key or [S] Shop button
+  - Sells 5 common items: Wooden Sword (25g), Leather Vest (25g), Health Ring (50g), Power Amulet (50g), Regen Charm (50g)
+  - Buy buttons gray out when can't afford
+  - Floating text confirms purchase, "Inventory Full!" if no space
 - Added rarity & item combining system
   - Items now have rarity tiers: Common (brown), Uncommon (green), Rare (blue)
   - Drag-and-drop to manually merge same items; 10 items auto-upgrade to next rarity

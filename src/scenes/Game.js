@@ -2,6 +2,7 @@ import { Player } from '../entities/Player.js';
 import { Monster } from '../entities/Monster.js';
 import { GameUI } from '../ui/GameUI.js';
 import { InventoryUI } from '../ui/InventoryUI.js';
+import { ShopUI } from '../ui/ShopUI.js';
 import { MONSTERS } from '../data/monsters.js';
 import { getItemById } from '../data/items.js';
 
@@ -23,6 +24,9 @@ export class Game extends Phaser.Scene {
         // Create inventory UI (hidden by default)
         this.inventoryUI = new InventoryUI(this, this.player);
 
+        // Create shop UI (hidden by default)
+        this.shopUI = new ShopUI(this, this.player);
+
         // Inventory button
         this.inventoryBtn = this.add.text(1180, 20, '[I] Inventory', {
             fontSize: '16px',
@@ -36,8 +40,29 @@ export class Game extends Phaser.Scene {
         this.inventoryBtn.on('pointerover', () => this.inventoryBtn.setColor('#ffffff'));
         this.inventoryBtn.on('pointerout', () => this.inventoryBtn.setColor('#aaaaff'));
 
+        // Shop button
+        this.shopBtn = this.add.text(1180, 50, '[S] Shop', {
+            fontSize: '16px',
+            fontFamily: 'Arial',
+            color: '#ffdd88',
+            backgroundColor: '#554433',
+            padding: { x: 8, y: 4 }
+        }).setInteractive({ useHandCursor: true });
+
+        this.shopBtn.on('pointerdown', () => this.toggleShop());
+        this.shopBtn.on('pointerover', () => this.shopBtn.setColor('#ffffff'));
+        this.shopBtn.on('pointerout', () => this.shopBtn.setColor('#ffdd88'));
+
         // Keyboard listener for 'I' key
         this.input.keyboard.on('keydown-I', () => this.toggleInventory());
+
+        // Keyboard listener for 'S' key
+        this.input.keyboard.on('keydown-S', () => this.toggleShop());
+
+        // Game speed control
+        this.gameSpeed = 1;
+        this.gameTime = 0;
+        this.createSpeedControls();
 
         // Combat state
         this.inCombat = true;
@@ -50,28 +75,123 @@ export class Game extends Phaser.Scene {
         this.ui.update(this.player);
     }
 
+    createSpeedControls() {
+        const startX = 20;
+        const y = 680;
+
+        // Speed control label
+        this.speedLabel = this.add.text(startX, y, 'Speed:', {
+            fontSize: '14px',
+            fontFamily: 'Arial',
+            color: '#aaaaaa'
+        });
+
+        // Speed buttons
+        this.speedButtons = [];
+        const speeds = [
+            { label: '||', value: 0 },
+            { label: '1x', value: 1 },
+            { label: '2x', value: 2 },
+            { label: '4x', value: 4 }
+        ];
+
+        let btnX = startX + 60;
+        for (const speed of speeds) {
+            const btn = this.add.text(btnX, y, speed.label, {
+                fontSize: '14px',
+                fontFamily: 'Arial',
+                color: speed.value === 1 ? '#ffffff' : '#888888',
+                backgroundColor: speed.value === 1 ? '#4444aa' : '#333344',
+                padding: { x: 8, y: 4 }
+            }).setInteractive({ useHandCursor: true });
+
+            btn.speedValue = speed.value;
+            btn.on('pointerdown', () => this.setGameSpeed(speed.value));
+            btn.on('pointerover', () => {
+                if (this.gameSpeed !== speed.value) {
+                    btn.setBackgroundColor('#444466');
+                }
+            });
+            btn.on('pointerout', () => {
+                if (this.gameSpeed !== speed.value) {
+                    btn.setBackgroundColor('#333344');
+                }
+            });
+
+            this.speedButtons.push(btn);
+            btnX += btn.width + 8;
+        }
+
+        // Keyboard shortcuts for speed
+        this.input.keyboard.on('keydown-SPACE', () => {
+            // Toggle pause
+            if (this.gameSpeed === 0) {
+                this.setGameSpeed(1);
+            } else {
+                this.setGameSpeed(0);
+            }
+        });
+    }
+
+    setGameSpeed(speed) {
+        this.gameSpeed = speed;
+        this.time.timeScale = speed; // Affects delayedCall timers
+
+        // Update button visuals
+        for (const btn of this.speedButtons) {
+            if (btn.speedValue === speed) {
+                btn.setColor('#ffffff');
+                btn.setBackgroundColor('#4444aa');
+            } else {
+                btn.setColor('#888888');
+                btn.setBackgroundColor('#333344');
+            }
+        }
+
+        // Show/hide paused indicator
+        if (speed === 0) {
+            if (!this.pausedText) {
+                this.pausedText = this.add.text(640, 360, 'PAUSED', {
+                    fontSize: '48px',
+                    fontFamily: 'Arial',
+                    color: '#ffffff',
+                    fontStyle: 'bold',
+                    stroke: '#000000',
+                    strokeThickness: 4
+                }).setOrigin(0.5).setDepth(50);
+            }
+            this.pausedText.setVisible(true);
+        } else if (this.pausedText) {
+            this.pausedText.setVisible(false);
+        }
+    }
+
     update(time, delta) {
+        // Advance game time based on speed (paused = 0, normal = 1, fast = 2 or 4)
+        this.gameTime += delta * this.gameSpeed;
+
         if (!this.inCombat) return;
+        if (this.gameSpeed === 0) return; // Paused
 
         // Player auto-attack
-        if (this.monster && this.player.canAttack(time)) {
+        if (this.monster && this.player.canAttack(this.gameTime)) {
             this.playerAttack();
-            this.player.recordAttack(time);
+            this.player.recordAttack(this.gameTime);
         }
 
         // Monster auto-attack
-        if (this.monster && this.monster.canAttack(time)) {
+        if (this.monster && this.monster.canAttack(this.gameTime)) {
             this.monsterAttack();
-            this.monster.recordAttack(time);
+            this.monster.recordAttack(this.gameTime);
         }
 
         // Health regeneration
-        if (this.player.canRegen(time)) {
-            this.player.regenerate(time);
+        if (this.player.canRegen(this.gameTime)) {
+            this.player.regenerate(this.gameTime);
         }
 
-        if (this.monster && this.monster.canRegen(time)) {
-            this.monster.regenerate(time);
+        if (this.monster && this.monster.canRegen(this.gameTime)) {
+            this.monster.regenerate(this.gameTime);
         }
 
         // Update UI
@@ -80,6 +200,10 @@ export class Game extends Phaser.Scene {
 
     toggleInventory() {
         this.inventoryUI.toggle();
+    }
+
+    toggleShop() {
+        this.shopUI.toggle();
     }
 
     spawnMonster() {
@@ -116,7 +240,7 @@ export class Game extends Phaser.Scene {
     }
 
     onMonsterClicked() {
-        if (!this.monster || !this.inCombat) return;
+        if (!this.monster || !this.inCombat || this.gameSpeed === 0) return;
 
         // Deal 50% ATK bonus damage
         const bonusDamage = Math.max(1, Math.floor(this.player.atk * 0.5));
